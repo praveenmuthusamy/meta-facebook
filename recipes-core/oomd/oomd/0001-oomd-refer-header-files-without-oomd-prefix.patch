@@ -1,0 +1,605 @@
+From 35ef516c9d0d1132a7c04578e6bb9a248a4e58ca Mon Sep 17 00:00:00 2001
+From: Parthiban Nallathambi <parthiban@linumiz.com>
+Date: Wed, 7 Nov 2018 18:48:26 +0100
+Subject: [PATCH] oomd: refer header files without "oomd/" prefix
+
+All the source in oomd uses header reference relative
+with "oomd/<header>". As yocto build systemd steps into
+build and starts compilation, this is not needed.
+
+For example,
+	#include "oomd/Config.h" ---> #include "Config.h"
+
+Signed-off-by: Parthiban Nallathambi <parthiban@linumiz.com>
+---
+ Config.cpp                 | 10 +++++-----
+ Config.h                   |  8 ++++----
+ ConfigTest.cpp             | 20 ++++++++++----------
+ Log.cpp                    |  2 +-
+ LogTest.cpp                |  4 ++--
+ Main.cpp                   |  6 +++---
+ OomDetector.cpp            |  8 ++++----
+ OomDetector.h              |  4 ++--
+ OomDetectorTest.cpp        |  4 ++--
+ OomKiller.cpp              |  6 +++---
+ OomKiller.h                |  4 ++--
+ OomKillerTest.cpp          | 10 +++++-----
+ Oomd.cpp                   |  6 +++---
+ Oomd.h                     |  8 ++++----
+ OomdTest.cpp               |  8 ++++----
+ PluginRegistry.h           |  4 ++--
+ include/Assert.cpp         |  2 +-
+ include/AssertTest.cpp     |  2 +-
+ plugins/OomKillerNoop.cpp  |  2 +-
+ plugins/OomKillerNoop.h    |  4 ++--
+ plugins/Plugins.h          |  2 +-
+ shared/OomdContext.cpp     |  4 ++--
+ shared/OomdContext.h       |  2 +-
+ shared/OomdContextTest.cpp |  2 +-
+ shared/Plugin.h            |  4 ++--
+ shared/Tunables.cpp        |  2 +-
+ shared/Tunables.h          |  4 ++--
+ util/Fs.cpp                |  6 +++---
+ util/Fs.h                  |  2 +-
+ util/FsTest.cpp            | 10 +++++-----
+ util/ScopeGuardTest.cpp    |  2 +-
+ 31 files changed, 81 insertions(+), 81 deletions(-)
+
+diff --git a/Config.cpp b/Config.cpp
+index 7e06a15..df85ca3 100644
+--- a/Config.cpp
++++ b/Config.cpp
+@@ -15,7 +15,7 @@
+  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-#include "oomd/Config.h"
++#include "Config.h"
+ 
+ #include <cstdlib>
+ #include <fstream>
+@@ -27,10 +27,10 @@
+ 
+ #include <json/reader.h>
+ 
+-#include "oomd/Log.h"
+-#include "oomd/PluginRegistry.h"
+-#include "oomd/include/Assert.h"
+-#include "oomd/shared/KillList.h"
++#include "Log.h"
++#include "PluginRegistry.h"
++#include "include/Assert.h"
++#include "shared/KillList.h"
+ 
+ static auto constexpr kCgroupBase = "/sys/fs/cgroup/";
+ 
+diff --git a/Config.h b/Config.h
+index 946d077..9abfdf0 100644
+--- a/Config.h
++++ b/Config.h
+@@ -21,10 +21,10 @@
+ 
+ #include <json/value.h>
+ 
+-#include "oomd/Oomd.h"
+-#include "oomd/plugins/Plugins.h"
+-#include "oomd/shared/Plugin.h"
+-#include "oomd/shared/Tunables.h"
++#include "Oomd.h"
++#include "plugins/Plugins.h"
++#include "shared/Plugin.h"
++#include "shared/Tunables.h"
+ 
+ namespace Oomd {
+ 
+diff --git a/ConfigTest.cpp b/ConfigTest.cpp
+index fc98467..d7637da 100644
+--- a/ConfigTest.cpp
++++ b/ConfigTest.cpp
+@@ -25,21 +25,21 @@
+ 
+ #include <json/value.h>
+ 
+-#include "oomd/Config.h"
+-#include "oomd/OomDetector.h"
+-#include "oomd/OomKiller.h"
+-#include "oomd/Oomd.h"
+-#include "oomd/shared/Tunables.h"
++#include "Config.h"
++#include "OomDetector.h"
++#include "OomKiller.h"
++#include "Oomd.h"
++#include "shared/Tunables.h"
+ 
+ using namespace Oomd;
+ using namespace testing;
+ 
+-constexpr auto kConfig_0_1_0 = "oomd/fixtures/oomd_0_1_0.json";
+-constexpr auto kConfig_0_1_1 = "oomd/fixtures/oomd_0_1_1.json";
+-constexpr auto kConfig_0_2_0 = "oomd/fixtures/oomd_0_2_0.json";
+-constexpr auto kConfigTunablesOverride = "oomd/fixtures/oomd_tunables.override";
++constexpr auto kConfig_0_1_0 = "fixtures/oomd_0_1_0.json";
++constexpr auto kConfig_0_1_1 = "fixtures/oomd_0_1_1.json";
++constexpr auto kConfig_0_2_0 = "fixtures/oomd_0_2_0.json";
++constexpr auto kConfigTunablesOverride = "fixtures/oomd_tunables.override";
+ constexpr auto kConfigTunablesOverrideMissing =
+-    "oomd/fixtures/asdfasdf.override";
++    "fixtures/asdfasdf.override";
+ 
+ namespace Oomd {
+ class MockOomd : public Oomd {
+diff --git a/Log.cpp b/Log.cpp
+index 33630a8..24c271e 100644
+--- a/Log.cpp
++++ b/Log.cpp
+@@ -15,7 +15,7 @@
+  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-#include "oomd/Log.h"
++#include "Log.h"
+ 
+ #include <errno.h>
+ #include <fcntl.h>
+diff --git a/LogTest.cpp b/LogTest.cpp
+index 8799dd0..e6e76ed 100644
+--- a/LogTest.cpp
++++ b/LogTest.cpp
+@@ -23,8 +23,8 @@
+ #include <sys/types.h>
+ #include <fstream>
+ #include <sstream>
+-#include "oomd/Log.h"
+-#include "oomd/shared/OomdContext.h"
++#include "Log.h"
++#include "shared/OomdContext.h"
+ 
+ using namespace Oomd;
+ using namespace testing;
+diff --git a/Main.cpp b/Main.cpp
+index 04e1e66..32381de 100644
+--- a/Main.cpp
++++ b/Main.cpp
+@@ -21,9 +21,9 @@
+ 
+ #include <getopt.h>
+ 
+-#include "oomd/Config.h"
+-#include "oomd/Log.h"
+-#include "oomd/Oomd.h"
++#include "Config.h"
++#include "Log.h"
++#include "Oomd.h"
+ 
+ static constexpr auto kConfigFilePath = "/etc/oomd.json";
+ 
+diff --git a/OomDetector.cpp b/OomDetector.cpp
+index 9749945..142b67f 100644
+--- a/OomDetector.cpp
++++ b/OomDetector.cpp
+@@ -15,16 +15,16 @@
+  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-#include "oomd/OomDetector.h"
++#include "OomDetector.h"
+ 
+ #include <algorithm>
+ #include <cmath>
+ #include <fstream>
+ #include <iomanip>
+ 
+-#include "oomd/Log.h"
+-#include "oomd/util/Fs.h"
+-#include "oomd/util/ScopeGuard.h"
++#include "Log.h"
++#include "util/Fs.h"
++#include "util/ScopeGuard.h"
+ 
+ static auto constexpr kPgscanSwap = "pgscan_kswapd";
+ static auto constexpr kPgscanDirect = "pgscan_direct";
+diff --git a/OomDetector.h b/OomDetector.h
+index cb5fa54..18c7754 100644
+--- a/OomDetector.h
++++ b/OomDetector.h
+@@ -23,8 +23,8 @@
+ #include <unordered_map>
+ #include <vector>
+ 
+-#include "oomd/shared/OomdContext.h"
+-#include "oomd/shared/Plugin.h"
++#include "shared/OomdContext.h"
++#include "shared/Plugin.h"
+ 
+ namespace Oomd {
+ 
+diff --git a/OomDetectorTest.cpp b/OomDetectorTest.cpp
+index 263692e..e6429e7 100644
+--- a/OomDetectorTest.cpp
++++ b/OomDetectorTest.cpp
+@@ -17,12 +17,12 @@
+ 
+ #include <gtest/gtest.h>
+ 
+-#include "oomd/OomDetector.h"
++#include "OomDetector.h"
+ 
+ using namespace Oomd;
+ using namespace testing;
+ 
+-constexpr auto kCgroupDataDir = "oomd/fixtures/cgroup";
++constexpr auto kCgroupDataDir = "fixtures/cgroup";
+ 
+ class OomDetectorTest : public ::testing::Test {
+  public:
+diff --git a/OomKiller.cpp b/OomKiller.cpp
+index 9fb4993..025c0fc 100644
+--- a/OomKiller.cpp
++++ b/OomKiller.cpp
+@@ -15,7 +15,7 @@
+  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-#include "oomd/OomKiller.h"
++#include "OomKiller.h"
+ 
+ #include <signal.h>
+ #include <algorithm>
+@@ -24,8 +24,8 @@
+ #include <queue>
+ #include <thread>
+ 
+-#include "oomd/Log.h"
+-#include "oomd/util/Fs.h"
++#include "Log.h"
++#include "util/Fs.h"
+ 
+ static auto constexpr kKillTypeKillListUsage = "kill_list_maxusage";
+ static auto constexpr kKillTypeKillListPressure = "kill_list_killpressure";
+diff --git a/OomKiller.h b/OomKiller.h
+index d3ee144..2fe2c47 100644
+--- a/OomKiller.h
++++ b/OomKiller.h
+@@ -20,8 +20,8 @@
+ #include <functional>
+ #include <vector>
+ 
+-#include "oomd/shared/OomdContext.h"
+-#include "oomd/shared/Plugin.h"
++#include "shared/OomdContext.h"
++#include "shared/Plugin.h"
+ 
+ namespace Oomd {
+ 
+diff --git a/OomKillerTest.cpp b/OomKillerTest.cpp
+index 3df4a13..fafdfdd 100644
+--- a/OomKillerTest.cpp
++++ b/OomKillerTest.cpp
+@@ -21,15 +21,15 @@
+ #include <memory>
+ #include <vector>
+ 
+-#include "oomd/OomKiller.h"
+-#include "oomd/shared/KillList.h"
+-#include "oomd/shared/OomdContext.h"
+-#include "oomd/shared/Tunables.h"
++#include "OomKiller.h"
++#include "shared/KillList.h"
++#include "shared/OomdContext.h"
++#include "shared/Tunables.h"
+ 
+ using namespace Oomd;
+ using namespace testing;
+ 
+-static constexpr auto kCgroupDataDir = "oomd/fixtures/cgroup";
++static constexpr auto kCgroupDataDir = "fixtures/cgroup";
+ 
+ namespace Oomd {
+ class MockOomKiller : public OomKiller {
+diff --git a/Oomd.cpp b/Oomd.cpp
+index dd7e8b4..62b4d7c 100644
+--- a/Oomd.cpp
++++ b/Oomd.cpp
+@@ -15,7 +15,7 @@
+  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-#include "oomd/Oomd.h"
++#include "Oomd.h"
+ 
+ #include <signal.h>
+ 
+@@ -25,8 +25,8 @@
+ #include <cstring>
+ #include <thread>
+ 
+-#include "oomd/Log.h"
+-#include "oomd/util/Fs.h"
++#include "Log.h"
++#include "util/Fs.h"
+ 
+ namespace {
+ std::atomic<bool> need_tunables_reload{false};
+diff --git a/Oomd.h b/Oomd.h
+index 3d3eb6c..cb47123 100644
+--- a/Oomd.h
++++ b/Oomd.h
+@@ -24,10 +24,10 @@
+ #include <utility>
+ #include <vector>
+ 
+-#include "oomd/OomDetector.h"
+-#include "oomd/OomKiller.h"
+-#include "oomd/shared/KillList.h"
+-#include "oomd/shared/Tunables.h"
++#include "OomDetector.h"
++#include "OomKiller.h"
++#include "shared/KillList.h"
++#include "shared/Tunables.h"
+ 
+ namespace Oomd {
+ 
+diff --git a/OomdTest.cpp b/OomdTest.cpp
+index f8ab6af..7af6526 100644
+--- a/OomdTest.cpp
++++ b/OomdTest.cpp
+@@ -17,14 +17,14 @@
+ 
+ #include <gtest/gtest.h>
+ 
+-#include "oomd/OomDetector.h"
+-#include "oomd/OomKiller.h"
+-#include "oomd/Oomd.h"
++#include "OomDetector.h"
++#include "OomKiller.h"
++#include "Oomd.h"
+ 
+ using namespace Oomd;
+ using namespace testing;
+ 
+-constexpr auto kCgroupDataDir = "oomd/fixtures/cgroup";
++constexpr auto kCgroupDataDir = "fixtures/cgroup";
+ 
+ class OomdTest : public ::testing::Test {
+  public:
+diff --git a/PluginRegistry.h b/PluginRegistry.h
+index 1b74044..efa1c08 100644
+--- a/PluginRegistry.h
++++ b/PluginRegistry.h
+@@ -21,8 +21,8 @@
+ #include <string>
+ #include <unordered_map>
+ 
+-#include "oomd/OomDetector.h"
+-#include "oomd/OomKiller.h"
++#include "OomDetector.h"
++#include "OomKiller.h"
+ 
+ namespace Oomd {
+ 
+diff --git a/include/Assert.cpp b/include/Assert.cpp
+index cacc609..c1c1ff2 100644
+--- a/include/Assert.cpp
++++ b/include/Assert.cpp
+@@ -18,7 +18,7 @@
+ #include <cstdlib>
+ #include <iostream>
+ 
+-#include "oomd/include/Assert.h"
++#include "include/Assert.h"
+ 
+ [[noreturn]] void
+ __OCHECK_FAIL(const char* expr, const char* file, int line, const char* func) {
+diff --git a/include/AssertTest.cpp b/include/AssertTest.cpp
+index bc89198..ffad1e6 100644
+--- a/include/AssertTest.cpp
++++ b/include/AssertTest.cpp
+@@ -18,7 +18,7 @@
+ #include <gmock/gmock.h>
+ #include <gtest/gtest.h>
+ 
+-#include "oomd/include/Assert.h"
++#include "include/Assert.h"
+ 
+ using namespace testing;
+ 
+diff --git a/plugins/OomKillerNoop.cpp b/plugins/OomKillerNoop.cpp
+index 9c945f2..15ee182 100644
+--- a/plugins/OomKillerNoop.cpp
++++ b/plugins/OomKillerNoop.cpp
+@@ -15,7 +15,7 @@
+  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-#include "oomd/plugins/OomKillerNoop.h"
++#include "plugins/OomKillerNoop.h"
+ 
+ namespace Oomd {
+ REGISTER_KILLER_PLUGIN(noop, OomKillerNoop::create);
+diff --git a/plugins/OomKillerNoop.h b/plugins/OomKillerNoop.h
+index e754c54..5403139 100644
+--- a/plugins/OomKillerNoop.h
++++ b/plugins/OomKillerNoop.h
+@@ -17,8 +17,8 @@
+ 
+ #pragma once
+ 
+-#include "oomd/OomKiller.h"
+-#include "oomd/PluginRegistry.h"
++#include "OomKiller.h"
++#include "PluginRegistry.h"
+ 
+ namespace Oomd {
+ 
+diff --git a/plugins/Plugins.h b/plugins/Plugins.h
+index 0376976..23d1d02 100644
+--- a/plugins/Plugins.h
++++ b/plugins/Plugins.h
+@@ -17,4 +17,4 @@
+ 
+ #pragma once
+ 
+-#include "oomd/plugins/OomKillerNoop.h"
++#include "plugins/OomKillerNoop.h"
+diff --git a/shared/OomdContext.cpp b/shared/OomdContext.cpp
+index 6c5664a..6daba4e 100644
+--- a/shared/OomdContext.cpp
++++ b/shared/OomdContext.cpp
+@@ -15,8 +15,8 @@
+  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-#include "oomd/shared/OomdContext.h"
+-#include "oomd/Log.h"
++#include "shared/OomdContext.h"
++#include "Log.h"
+ 
+ #include <exception>
+ 
+diff --git a/shared/OomdContext.h b/shared/OomdContext.h
+index 4f92491..3096493 100644
+--- a/shared/OomdContext.h
++++ b/shared/OomdContext.h
+@@ -24,7 +24,7 @@
+ #include <unordered_map>
+ #include <vector>
+ 
+-#include "oomd/include/Types.h"
++#include "include/Types.h"
+ 
+ namespace Oomd {
+ 
+diff --git a/shared/OomdContextTest.cpp b/shared/OomdContextTest.cpp
+index c436f80..4ae15e1 100644
+--- a/shared/OomdContextTest.cpp
++++ b/shared/OomdContextTest.cpp
+@@ -18,7 +18,7 @@
+ #include <gmock/gmock.h>
+ #include <gtest/gtest.h>
+ 
+-#include "oomd/shared/OomdContext.h"
++#include "shared/OomdContext.h"
+ 
+ using namespace Oomd;
+ using namespace testing;
+diff --git a/shared/Plugin.h b/shared/Plugin.h
+index e1eb613..cc44ba4 100644
+--- a/shared/Plugin.h
++++ b/shared/Plugin.h
+@@ -19,8 +19,8 @@
+ 
+ #include <memory>
+ 
+-#include "oomd/shared/KillList.h"
+-#include "oomd/shared/Tunables.h"
++#include "shared/KillList.h"
++#include "shared/Tunables.h"
+ 
+ namespace Oomd {
+ 
+diff --git a/shared/Tunables.cpp b/shared/Tunables.cpp
+index de2d284..1c54a25 100644
+--- a/shared/Tunables.cpp
++++ b/shared/Tunables.cpp
+@@ -15,7 +15,7 @@
+  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-#include "oomd/shared/Tunables.h"
++#include "shared/Tunables.h"
+ 
+ #include <cstdlib>
+ 
+diff --git a/shared/Tunables.h b/shared/Tunables.h
+index da56c06..102c3ce 100644
+--- a/shared/Tunables.h
++++ b/shared/Tunables.h
+@@ -20,8 +20,8 @@
+ #include <string>
+ #include <vector>
+ 
+-#include "oomd/Log.h"
+-#include "oomd/util/Fs.h"
++#include "Log.h"
++#include "util/Fs.h"
+ 
+ namespace Oomd {
+ 
+diff --git a/util/Fs.cpp b/util/Fs.cpp
+index e10f387..a9028cb 100644
+--- a/util/Fs.cpp
++++ b/util/Fs.cpp
+@@ -15,7 +15,7 @@
+  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-#include "oomd/util/Fs.h"
++#include "util/Fs.h"
+ 
+ #include <dirent.h>
+ #include <sys/stat.h>
+@@ -26,8 +26,8 @@
+ #include <fstream>
+ #include <sstream>
+ 
+-#include "oomd/Log.h"
+-#include "oomd/include/Assert.h"
++#include "Log.h"
++#include "include/Assert.h"
+ 
+ namespace Oomd {
+ 
+diff --git a/util/Fs.h b/util/Fs.h
+index bc12aa7..56b71b9 100644
+--- a/util/Fs.h
++++ b/util/Fs.h
+@@ -21,7 +21,7 @@
+ #include <unordered_map>
+ #include <vector>
+ 
+-#include "oomd/include/Types.h"
++#include "include/Types.h"
+ 
+ namespace Oomd {
+ 
+diff --git a/util/FsTest.cpp b/util/FsTest.cpp
+index 78e2dd2..3c246a2 100644
+--- a/util/FsTest.cpp
++++ b/util/FsTest.cpp
+@@ -18,15 +18,15 @@
+ #include <gmock/gmock.h>
+ #include <gtest/gtest.h>
+ 
+-#include "oomd/util/Fs.h"
++#include "util/Fs.h"
+ 
+ using namespace Oomd;
+ using namespace testing;
+ 
+-constexpr auto kCgroupDataDir = "oomd/fixtures/cgroup";
+-constexpr auto kFsDataDir = "oomd/fixtures/fs_data";
+-constexpr auto kFsVmstatFile = "oomd/fixtures/proc/vmstat";
+-constexpr auto kFsMeminfoFile = "oomd/fixtures/proc/meminfo";
++constexpr auto kCgroupDataDir = "fixtures/cgroup";
++constexpr auto kFsDataDir = "fixtures/fs_data";
++constexpr auto kFsVmstatFile = "fixtures/proc/vmstat";
++constexpr auto kFsMeminfoFile = "fixtures/proc/meminfo";
+ 
+ class FsTest : public ::testing::Test {
+  public:
+diff --git a/util/ScopeGuardTest.cpp b/util/ScopeGuardTest.cpp
+index d03478a..d5ffed9 100644
+--- a/util/ScopeGuardTest.cpp
++++ b/util/ScopeGuardTest.cpp
+@@ -18,7 +18,7 @@
+ #include <gmock/gmock.h>
+ #include <gtest/gtest.h>
+ 
+-#include "oomd/util/ScopeGuard.h"
++#include "util/ScopeGuard.h"
+ 
+ #include <exception>
+ 
+-- 
+2.17.2
+
